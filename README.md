@@ -39,6 +39,7 @@ sudo apt install g++ ncurses-dev mpv ffmpeg
 
 ### Install on Fedora
 ```bash
+sudo dnf upgrade --refresh
 sudo dnf install gcc-c++ ncurses-devel mpv ffmpeg
 ```
 
