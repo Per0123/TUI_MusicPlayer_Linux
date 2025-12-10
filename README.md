@@ -47,3 +47,13 @@ sudo dnf install gcc-c++ ncurses-devel mpv ffmpeg
 ```bash
 sudo pacman -Syu gcc ncurses mpv ffmpeg
 ```
+
+
+## To-Do
+- Switch audio playback to **ffmpeg**
+- Fix border **overlaping** with song names
+- Add **scrolling** for long song lists
+- Add some **config**
+- Add **repeat** and **shuffle**
+- Add **volume** control and better song **seeking**
+- Add **metadata reading** (title, artist, album, etc.)
