@@ -16,12 +16,11 @@ A **lightweight, terminal-based music player** written in C++ using **ncurses** 
 
 ## Controls
 
-- Key : Action
-- Up : Move up
-- Down : Move down
-- a : Enter folder / Play
-- p : Pause / Resume
-- q : Quit
+- Up - Move up
+- Down - Move down
+- a - Enter folder / Play
+- p - Pause / Resume
+- q - Quit
 
 
 
