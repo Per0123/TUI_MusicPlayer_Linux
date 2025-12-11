@@ -23,7 +23,6 @@ A **lightweight, terminal-based music player** written in C++ using **ncurses** 
 - q - Quit
 
 
-
 ## Requirements
 
 - **C++17 compatible compiler** (g++, clang++)
@@ -50,10 +49,54 @@ sudo pacman -Syu gcc ncurses mpv ffmpeg
 
 
 ## To-Do
-- Switch audio playback to **ffmpeg**
-- Fix border **overlaping** with song names
-- Add **scrolling** for long song lists
-- Add some **config**
-- Add **repeat** and **shuffle**
-- Add **volume** control and better song **seeking**
-- Add **metadata reading** (title, artist, album, etc.)
+
+- [x] Switch audio playback to **ffmpeg**
+- [ ] Fix **border overlapping** with song names
+- [ ] Resolve song length bar **glitching** when resizing
+- [ ] Add **scrolling** for long song lists
+- [ ] Add **repeat** and **shuffle**
+- [ ] Add **volume control** and **better song skipping** + **shortcuts**
+- [ ] Add **metadata** reading (title, artist, album)
+- [ ] Implement **termgl** addon for better graphics
+
+
+## Compilation
+
+To compile the program from source, follow these steps:
+
+1. **Clone the repository:**
+
+    ```bash
+    git clone https://github.com/Per0123/TUI_MusicPlayer_Linux.git
+    cd TUI_MusicPlayer_Linux
+    ```
+
+2. **Compile the code:**
+
+    You will need a **C++17** compatible compiler and **ncurses** library to build the program.
+
+    ```bash
+    g++ musicPlayer.cpp -o musicPlayer -lncurses
+    ```
+
+3. **Run the music player:**
+
+    After compiling, you can run the program like this:
+
+    ```bash
+    ./musicPlayer
+    ```
+
+## Usage
+
+1. Navigate to your **Music folder** or any folder containing MP3 files.
+2. Use the **Up** and **Down** arrow keys to navigate through the list.
+3. Press **`a`** to play a song or enter a folder.
+4. Press **`p`** to pause and resume playback.
+5. Press **`q`** to quit the program.
+
+Once a song finishes, the next available song in the folder will start playing automatically.
+
+## License
+
+This project is licensed under the **MIT License**. You are free to use, modify, and distribute the software, but you must provide attribution to the original author. See the [LICENSE](LICENSE) file for more details.
