@@ -51,6 +51,9 @@ sudo pacman -Syu gcc ncurses mpv ffmpeg
 ## To-Do
 
 - [x] Switch audio playback to **ffmpeg**
+- [x] Add **theme** support
+- [x] Add additional **themes**
+- [ ] Add default **font**
 - [ ] Fix **border overlapping** with song names
 - [ ] Resolve song length bar **glitching** when resizing
 - [ ] Add **scrolling** for long song lists
