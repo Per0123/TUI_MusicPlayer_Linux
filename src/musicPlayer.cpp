@@ -1,6 +1,5 @@
 #include <ncurses.h>
 #include <cstdlib>
-#include <csignal>
 #include <unistd.h>
 #include <string>
 #include <locale.h>
@@ -12,12 +11,22 @@
 #include <ctime>
 #include <sstream>
 #include <iomanip>
+#include <cstdio>
+#include <libgen.h> 
 
 struct Entry {
     std::string name;
     bool is_dir;
     bool is_mp3;
 };
+
+std::string normalize_path(const std::string& path) {
+    char resolved_path[PATH_MAX];
+    if (realpath(path.c_str(), resolved_path) != nullptr) {
+        return std::string(resolved_path); 
+    }
+    return path; 
+}
 
 std::vector<Entry> get_directory_contents(const std::string &folder) {
     std::vector<Entry> entries;
@@ -30,26 +39,11 @@ std::vector<Entry> get_directory_contents(const std::string &folder) {
         Entry e;
         e.name = name;
         e.is_dir = (entry->d_type == DT_DIR);
-        if (entry->d_type == DT_UNKNOWN) {
-            struct stat st;
-            std::string path = folder + "/" + name;
-            if (stat(path.c_str(), &st) == 0) e.is_dir = S_ISDIR(st.st_mode);
-        }
         e.is_mp3 = name.size() > 4 && name.substr(name.size() - 4) == ".mp3";
         entries.push_back(e);
     }
     std::sort(entries.begin(), entries.end(), [](const Entry &a, const Entry &b){ return a.name < b.name; });
     return entries;
-}
-
-bool is_directory(const std::string &path) {
-    struct stat info;
-    if (stat(path.c_str(), &info) != 0) return false;
-    return (info.st_mode & S_IFDIR);
-}
-
-bool is_mp3(const std::string &filename) {
-    return filename.size() > 4 && filename.substr(filename.size() - 4) == ".mp3";
 }
 
 std::string format_time(double seconds) {
@@ -78,15 +72,32 @@ void draw_progress_bar(int row, int col, double position, double duration) {
 }
 
 double get_mp3_duration(const std::string &path) {
-    std::string cmd = "ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"" + path + "\" 2>/dev/null";
+    std::string cmd = "ffmpeg -i \"" + path + "\" 2>&1 | grep 'Duration' | awk '{print $2}' | tr -d ,";
+
     FILE* pipe = popen(cmd.c_str(), "r");
     if (!pipe) return 0;
+
     char buffer[128];
     std::string result = "";
-    while (fgets(buffer, sizeof(buffer), pipe) != nullptr) result += buffer;
+    while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+        result += buffer;
+    }
     pclose(pipe);
-    try { return std::stod(result); }
-    catch (...) { return 0; }
+
+    if (result.empty()) return 0;
+
+    result = result.substr(0, result.find_last_not_of(" \n\r\t") + 1);
+
+    double duration = 0;
+    int h = 0, m, s;
+    float f = 0;
+    if (sscanf(result.c_str(), "%d:%d:%d.%f", &h, &m, &s, &f) == 4) {
+        duration = h * 3600 + m * 60 + s + f;
+    } else if (sscanf(result.c_str(), "%d:%d.%f", &m, &s, &f) == 3) {
+        duration = m * 60 + s + f;
+    }
+
+    return duration;
 }
 
 void draw_box(int rows, int cols) {
@@ -114,6 +125,7 @@ int main() {
 
     const char* home_env = std::getenv("HOME");
     std::string current_folder = home_env ? std::string(home_env) + "/Music" : "/tmp";
+    current_folder = normalize_path(current_folder); 
     std::vector<Entry> entries = get_directory_contents(current_folder);
 
     int rows, cols;
@@ -197,7 +209,7 @@ int main() {
                 Entry chosen = entries[selected_entry];
                 std::string full_path = current_folder + "/" + chosen.name;
                 if (chosen.is_dir) {
-                    current_folder = full_path;
+                    current_folder = normalize_path(full_path); 
                     entries = get_directory_contents(current_folder);
                     selected_entry = 0;
                     redraw_static = true;
