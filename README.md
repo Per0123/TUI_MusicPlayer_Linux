@@ -53,6 +53,7 @@ sudo pacman -Syu gcc ncurses mpv ffmpeg
 - [x] Switch audio playback to **ffmpeg**
 - [x] Add **theme** support
 - [x] Add additional **themes**
+- [x] Reformat the **code**
 - [ ] Add default **font**
 - [ ] Fix **border overlapping** with song names
 - [ ] Resolve song length bar **glitching** when resizing
