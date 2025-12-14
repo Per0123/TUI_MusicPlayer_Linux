@@ -4,6 +4,8 @@
 #include <limits.h>
 #include <sstream>
 #include <iomanip>
+#include <cstdio>
+#include <cstdlib>
 
 std::string normalize_path(const std::string& path) {
     char resolved_path[PATH_MAX];
@@ -36,4 +38,18 @@ std::string format_time(double seconds) {
     std::ostringstream ss;
     ss << mins << ":" << std::setw(2) << std::setfill('0') << secs;
     return ss.str();
+}
+
+double get_song_duration(const std::string &file) {
+    double duration = 0;
+    std::string cmd = "ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"" + file + "\"";
+    FILE* fp = popen(cmd.c_str(), "r");
+    if (fp) {
+        char buf[64];
+        if (fgets(buf, sizeof(buf), fp)) {
+            duration = atof(buf);
+        }
+        pclose(fp);
+    }
+    return duration;
 }

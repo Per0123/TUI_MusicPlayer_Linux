@@ -54,14 +54,16 @@ sudo pacman -Syu gcc ncurses mpv ffmpeg
 - [x] Add **theme** support
 - [x] Add additional **themes**
 - [x] Reformat the **code**
-- [ ] Add default **font**
-- [ ] Fix **border overlapping** with song names
-- [ ] Resolve song length bar **glitching** when resizing
-- [ ] Add **scrolling** for long song lists
+- [x] Fix **border overlapping** with song names
+- [x] Resolve song length bar **glitching** when resizing
+- [x] Add **scrolling** for long song lists
+- [ ] Implement controls **menu**
 - [ ] Add **repeat** and **shuffle**
-- [ ] Add **volume control** and **better song skipping** + **shortcuts**
+- [ ] Add **volume control** and **better song skipping** 
 - [ ] Add **metadata** reading (title, artist, album)
 - [ ] Implement **termgl** addon for better graphics
+- [ ] Add more **file type** support
+- [ ] Add file **manipulation**
 
 
 ## Compilation

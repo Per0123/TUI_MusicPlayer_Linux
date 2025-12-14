@@ -3,6 +3,12 @@
 #include <ncurses.h>
 #include <string>
 
+void resize_terminal() {
+    resize_term(24, 80);
+    clear();
+    refresh();
+}
+
 void draw_progress_bar(int row, int col, double position, double duration) {
     std::string elapsed_str = format_time(position);
     std::string total_str = format_time(duration);
@@ -24,18 +30,18 @@ void draw_progress_bar(int row, int col, double position, double duration) {
 }
 
 void draw_box(int rows, int cols) {
-    mvaddwstr(0, 0, L"┌"); 
+    mvaddwstr(0, 0, L"┌");
     mvaddwstr(0, cols-1, L"┐");
-    mvaddwstr(rows-1, 0, L"└"); 
+    mvaddwstr(rows-1, 0, L"└");
     mvaddwstr(rows-1, cols-1, L"┘");
 
     for(int i = 1; i < cols-1; i++){
-        mvaddwstr(0, i, L"─"); 
+        mvaddwstr(0, i, L"─");
         mvaddwstr(rows-1, i, L"─");
     }
 
     for(int i = 1; i < rows-1; i++){
-        mvaddwstr(i, 0, L"│"); 
+        mvaddwstr(i, 0, L"│");
         mvaddwstr(i, cols-1, L"│");
     }
 }

@@ -11,3 +11,4 @@ struct Entry {
 std::string normalize_path(const std::string& path);
 std::vector<Entry> get_dir_contents(const std::string &folder);
 std::string format_time(double seconds);
+double get_song_duration(const std::string &file);

@@ -6,8 +6,10 @@
 #include <vector>
 #include <string>
 #include <locale.h>
+#include <algorithm>
 #include "utils.h"
 #include "ui.h"
+#include <signal.h>
 
 int main() {
     setlocale(LC_ALL,"");
@@ -15,7 +17,9 @@ int main() {
     keypad(stdscr, TRUE);
     noecho();
     curs_set(0);
-    timeout(100);
+    timeout(50);
+
+    resize_terminal();
 
     int rows, cols;
     pid_t mpv_pid = 0;
@@ -24,6 +28,7 @@ int main() {
     bool paused = false;
     time_t song_start_time = 0;
     double paused_time = 0;
+    double song_duration = 0;
     bool redraw_static = true;
 
     const char* home_env = getenv("HOME");
@@ -31,13 +36,14 @@ int main() {
     current_folder = normalize_path(current_folder);
     std::vector<Entry> entries = get_dir_contents(current_folder);
 
-    const int margin = 2; 
+    const int margin = 3;
 
     while(true) {
         getmaxyx(stdscr, rows, cols);
+        if (rows != 24 || cols != 80) resize_terminal();
 
-        int start_row = 5;
-        int max_entries = rows - start_row - 3;  
+        int start_row = 3;
+        int max_entries = rows - start_row - 3;
         int end_index = std::min((int)entries.size(), selected_entry + max_entries);
         int first_index = std::max(0, end_index - max_entries);
 
@@ -45,25 +51,23 @@ int main() {
             clear();
             draw_box(rows, cols);
 
-            mvprintw(1, margin, "'q'=quit, up/down=move, 'a'=action, 'p'=pause/resume");
-
             std::string folder_display = current_folder;
-            int max_folder_len = cols - 2*margin;
+            int max_folder_len = cols - 2 * margin;
             if((int)folder_display.size() > max_folder_len)
                 folder_display = "..." + folder_display.substr(folder_display.size() - max_folder_len + 3);
 
-            mvprintw(3, margin, "Folder: %s", folder_display.c_str());
+            mvprintw(1, margin, "Folder: %s", folder_display.c_str());
             redraw_static = false;
         }
 
         for(int i = first_index; i < end_index; ++i) {
             int line = start_row + i - first_index;
-            if(line >= rows - 1) break; 
+            if(line >= rows - 1) break;
 
             std::string display_name = entries[i].name;
             if(entries[i].is_dir) display_name += "/";
 
-            int max_name_len = cols - 2 * margin - 1; 
+            int max_name_len = cols - 2 * margin - 1;
             if((int)display_name.size() > max_name_len)
                 display_name = display_name.substr(0, max_name_len - 3) + "...";
 
@@ -81,9 +85,28 @@ int main() {
             pid_t result = waitpid(mpv_pid, &status, WNOHANG);
             if(result > 0) {
                 mpv_pid = 0;
+                song_duration = 0;
+
+                current_song_index++;
+                while(current_song_index < (int)entries.size() && !entries[current_song_index].is_mp3) {
+                    current_song_index++;
+                }
+                if(current_song_index < (int)entries.size()) {
+                    std::string next_path = current_folder + "/" + entries[current_song_index].name;
+                    mpv_pid = fork();
+                    if(mpv_pid == 0) {
+                        execlp("mpv", "mpv", "--no-terminal", "--really-quiet", "--no-video", next_path.c_str(), nullptr);
+                        _exit(1);
+                    }
+                    song_start_time = time(nullptr);
+                    paused_time = 0;
+                    paused = false;
+                    song_duration = get_song_duration(next_path);
+                    selected_entry = current_song_index;
+                }
             } else {
                 double elapsed = paused ? paused_time : difftime(time(nullptr), song_start_time);
-                draw_progress_bar(rows - 2, cols, elapsed, 0);
+                draw_progress_bar(rows - 2, cols, elapsed, song_duration);
             }
         }
 
@@ -110,6 +133,7 @@ int main() {
                 if(entries.empty()) continue;
                 Entry chosen = entries[selected_entry];
                 std::string full_path = current_folder + "/" + chosen.name;
+
                 if(chosen.is_dir) {
                     current_folder = normalize_path(full_path);
                     entries = get_dir_contents(current_folder);
@@ -117,15 +141,18 @@ int main() {
                     redraw_static = true;
                 } else if(chosen.is_mp3) {
                     if(mpv_pid != 0) kill(mpv_pid, SIGKILL);
+
                     mpv_pid = fork();
                     if(mpv_pid == 0) {
-                        execlp("mpv", "mpv", "--no-terminal", full_path.c_str(), nullptr);
+                        execlp("mpv", "mpv", "--no-terminal", "--really-quiet", "--no-video", full_path.c_str(), nullptr);
                         _exit(1);
                     }
+
                     current_song_index = selected_entry;
                     song_start_time = time(nullptr);
-                    paused = false;
                     paused_time = 0;
+                    paused = false;
+                    song_duration = get_song_duration(full_path);
                 }
             }
         }
