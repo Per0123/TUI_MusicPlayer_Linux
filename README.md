@@ -2,7 +2,7 @@
 
 A **lightweight, terminal-based music player** written in C++ using **ncurses** for the interface and **mpv** for audio playback. Browse folders, play MP3s, pause/resume, and see a live progress bar—all inside your terminal.  
 
-![terminal-music-player-demo](MusicPlayerPic.png)
+![terminal-music-player-demo](img/MusicPlayerPic2.png)
 
 ## Features
 
