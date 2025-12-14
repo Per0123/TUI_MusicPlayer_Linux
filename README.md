@@ -63,7 +63,7 @@ sudo pacman -Syu gcc ncurses mpv ffmpeg
 - [ ] Add **metadata** reading (title, artist, album)
 - [ ] Implement **termgl** addon for better graphics
 - [ ] Add more **file type** support
-- [ ] Add file **manipulation**
+- [ ] Add folder **manipulation**
 
 
 ## Compilation
