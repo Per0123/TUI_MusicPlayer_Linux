@@ -50,7 +50,6 @@ sudo pacman -Syu gcc ncurses mpv ffmpeg
 
 ## To-Do
 
-- [x] Switch audio playback to **ffmpeg**
 - [x] Add **theme** support
 - [x] Add additional **themes**
 - [x] Reformat the **code**
